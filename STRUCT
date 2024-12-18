@@ -1,0 +1,63 @@
+FreeRTOS_Learning/
+├── include/                // 头文件目录
+│   └── config.h            // 项目配置文件 (demo 序号选择等)
+├── src/                  // 源代码目录
+│   ├── main.cpp          // 主程序入口
+│   ├── demo_01/          // 任务创建与删除
+│   │   └── demo_01.cpp
+│   │   └── demo_01.h
+│   ├── demo_02/          // 任务优先级
+│   │   └── demo_02.cpp
+│   │   └── demo_02.h
+│   ├── demo_03/          // 信号量
+│   │   └── demo_03.cpp
+│   │   └── demo_03.h
+│   ├── demo_04/          // 互斥量
+│   │   └── demo_04.cpp
+│   │   └── demo_04.h
+│   ├── demo_05/          // 队列
+│   │   └── demo_05.cpp
+│   │   └── demo_05.h
+│   ├── demo_06/          // 定时器
+│   │   └── demo_06.cpp
+│   │   └── demo_06.h
+│   ├── demo_07/          // 事件组
+│   │   └── demo_07.cpp
+│   │   └── demo_07.h
+│   ├── demo_08/          // 任务通知
+│   │   └── demo_08.cpp
+│   │   └── demo_08.h
+│   ├── demo_09/          // 任务看门狗
+│   │   └── demo_09.cpp
+│   │   └── demo_09.h
+│   ├── demo_10/          // 消息缓冲区
+│   │   └── demo_10.cpp
+│   │   └── demo_10.h
+│   ├── demo_11/          // 流缓冲区
+│   │   └── demo_11.cpp
+│   │   └── demo_11.h
+│   ├── demo_12/          // 静态分配
+│   │   └── demo_12.cpp
+│   │   └── demo_12.h
+│   ├── demo_13/          // 低功耗定时器
+│   │   └── demo_13.cpp
+│   │   └── demo_13.h
+│   ├── demo_14/          // 中断处理
+│   │   └── demo_14.cpp
+│   │   └── demo_14.h
+│   ├── demo_15/          // 软件定时器服务程序任务
+│   │   └── demo_15.cpp
+│   │   └── demo_15.h
+│   ├── demo_16/          // 事件组与队列组合使用
+│   │   └── demo_16.cpp
+│   │   └── demo_16.h
+│   ├── demo_17/          // 系统状态监控
+│   │   └── demo_17.cpp
+│   │   └── demo_17.h
+│   └── utils/            // 实用工具函数目录
+│       └── utils.cpp
+│       └── utils.h
+├── lib/                  // 外部库目录 (例如：ESP32 Arduino 核心库)
+├── platformio.ini        // PlatformIO 项目配置文件
+├── sdkconfig.defaults     // ESP-IDF 配置文件 (用于启用 FreeRTOS 特性)
+└── README.md             // 项目说明文档
