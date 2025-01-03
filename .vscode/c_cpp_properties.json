@@ -11,6 +11,7 @@
                 "C:/Users/seeed/Downloads/esp32s3_pio_arduino_2.0.17_freertos_demo/include",
                 "C:/Users/seeed/Downloads/esp32s3_pio_arduino_2.0.17_freertos_demo/src",
                 "C:/Users/seeed/Downloads/esp32s3_pio_arduino_2.0.17_freertos_demo/.pio/libdeps/esp32-s3-devkitc-1/Seeed Arduino Round display/src",
+                "C:/Users/seeed/.platformio/packages/framework-arduinoespressif32/libraries/Wire/src",
                 "C:/Users/seeed/Downloads/esp32s3_pio_arduino_2.0.17_freertos_demo/.pio/libdeps/esp32-s3-devkitc-1/TFT_eSPI",
                 "C:/Users/seeed/.platformio/packages/framework-arduinoespressif32/libraries/SPIFFS/src",
                 "C:/Users/seeed/.platformio/packages/framework-arduinoespressif32/libraries/FS/src",
@@ -250,7 +251,6 @@
                 "C:/Users/seeed/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src",
                 "C:/Users/seeed/.platformio/packages/framework-arduinoespressif32/libraries/WiFiClientSecure/src",
                 "C:/Users/seeed/.platformio/packages/framework-arduinoespressif32/libraries/WiFiProv/src",
-                "C:/Users/seeed/.platformio/packages/framework-arduinoespressif32/libraries/Wire/src",
                 ""
             ],
             "browse": {
@@ -259,6 +259,7 @@
                     "C:/Users/seeed/Downloads/esp32s3_pio_arduino_2.0.17_freertos_demo/include",
                     "C:/Users/seeed/Downloads/esp32s3_pio_arduino_2.0.17_freertos_demo/src",
                     "C:/Users/seeed/Downloads/esp32s3_pio_arduino_2.0.17_freertos_demo/.pio/libdeps/esp32-s3-devkitc-1/Seeed Arduino Round display/src",
+                    "C:/Users/seeed/.platformio/packages/framework-arduinoespressif32/libraries/Wire/src",
                     "C:/Users/seeed/Downloads/esp32s3_pio_arduino_2.0.17_freertos_demo/.pio/libdeps/esp32-s3-devkitc-1/TFT_eSPI",
                     "C:/Users/seeed/.platformio/packages/framework-arduinoespressif32/libraries/SPIFFS/src",
                     "C:/Users/seeed/.platformio/packages/framework-arduinoespressif32/libraries/FS/src",
@@ -498,7 +499,6 @@
                     "C:/Users/seeed/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src",
                     "C:/Users/seeed/.platformio/packages/framework-arduinoespressif32/libraries/WiFiClientSecure/src",
                     "C:/Users/seeed/.platformio/packages/framework-arduinoespressif32/libraries/WiFiProv/src",
-                    "C:/Users/seeed/.platformio/packages/framework-arduinoespressif32/libraries/Wire/src",
                     ""
                 ]
             },
