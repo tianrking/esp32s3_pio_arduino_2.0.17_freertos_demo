@@ -10,6 +10,7 @@
             "includePath": [
                 "/home/w0x7ce/Desktop/XIAO_esp32s3_template/include",
                 "/home/w0x7ce/Desktop/XIAO_esp32s3_template/src",
+                "/home/w0x7ce/Desktop/XIAO_esp32s3_template/lib/SCServo",
                 "/home/w0x7ce/Desktop/XIAO_esp32s3_template/.pio/libdeps/esp32-s3-devkitc-1/micro_ros_platformio",
                 "/home/w0x7ce/Desktop/XIAO_esp32s3_template/.pio/libdeps/esp32-s3-devkitc-1/micro_ros_platformio/libmicroros/include",
                 "/home/w0x7ce/Desktop/XIAO_esp32s3_template/.pio/libdeps/esp32-s3-devkitc-1/micro_ros_platformio/platform_code",
@@ -213,7 +214,7 @@
                 "/home/w0x7ce/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/qio_opi/include",
                 "/home/w0x7ce/.platformio/packages/framework-arduinoespressif32/cores/esp32",
                 "/home/w0x7ce/.platformio/packages/framework-arduinoespressif32/variants/XIAO_ESP32S3",
-                "/home/w0x7ce/Desktop/XIAO_esp32s3_template/lib/SCServo",
+                "/home/w0x7ce/Desktop/XIAO_esp32s3_template/.pio/libdeps/esp32-s3-devkitc-1/SCSservo",
                 "/home/w0x7ce/.platformio/packages/framework-arduinoespressif32/libraries/ArduinoOTA/src",
                 "/home/w0x7ce/.platformio/packages/framework-arduinoespressif32/libraries/AsyncUDP/src",
                 "/home/w0x7ce/.platformio/packages/framework-arduinoespressif32/libraries/BLE/src",
@@ -254,6 +255,7 @@
                 "path": [
                     "/home/w0x7ce/Desktop/XIAO_esp32s3_template/include",
                     "/home/w0x7ce/Desktop/XIAO_esp32s3_template/src",
+                    "/home/w0x7ce/Desktop/XIAO_esp32s3_template/lib/SCServo",
                     "/home/w0x7ce/Desktop/XIAO_esp32s3_template/.pio/libdeps/esp32-s3-devkitc-1/micro_ros_platformio",
                     "/home/w0x7ce/Desktop/XIAO_esp32s3_template/.pio/libdeps/esp32-s3-devkitc-1/micro_ros_platformio/libmicroros/include",
                     "/home/w0x7ce/Desktop/XIAO_esp32s3_template/.pio/libdeps/esp32-s3-devkitc-1/micro_ros_platformio/platform_code",
@@ -457,7 +459,7 @@
                     "/home/w0x7ce/.platformio/packages/framework-arduinoespressif32/tools/sdk/esp32s3/qio_opi/include",
                     "/home/w0x7ce/.platformio/packages/framework-arduinoespressif32/cores/esp32",
                     "/home/w0x7ce/.platformio/packages/framework-arduinoespressif32/variants/XIAO_ESP32S3",
-                    "/home/w0x7ce/Desktop/XIAO_esp32s3_template/lib/SCServo",
+                    "/home/w0x7ce/Desktop/XIAO_esp32s3_template/.pio/libdeps/esp32-s3-devkitc-1/SCSservo",
                     "/home/w0x7ce/.platformio/packages/framework-arduinoespressif32/libraries/ArduinoOTA/src",
                     "/home/w0x7ce/.platformio/packages/framework-arduinoespressif32/libraries/AsyncUDP/src",
                     "/home/w0x7ce/.platformio/packages/framework-arduinoespressif32/libraries/BLE/src",
