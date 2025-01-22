@@ -4,139 +4,186 @@
 #include <rclc/rclc.h>
 #include <rclc/executor.h>
 #include <std_msgs/msg/int32.h>
+#include <std_msgs/msg/int32_multi_array.h>
 #include <HardwareSerial.h>
-
 #include <SCServo.h>
-SMS_STS st;
 
-// 创建硬件串口对象用于舵机控制
-HardwareSerial ServoSerial(1); // UART1, 使用D6(GPIO43, TX)和D7(GPIO44, RX)
+SMS_STS st;
+#define S_RXD 44
+#define S_TXD 43
+#define LED_PIN 13  // 用于调试的LED
+
+// 定义舵机ID数组
+const int SERVO_COUNT = 6;
+const int servoIDs[SERVO_COUNT] = {50, 77, 88, 99, 100, 110};
 
 // micro-ROS 全局变量
-rcl_publisher_t publisher;
-std_msgs__msg__Int32 msg;
+rcl_publisher_t heartbeat_publisher;
+rcl_publisher_t joint_state_publisher;
+rcl_subscription_t joint_command_subscriber;
+
+std_msgs__msg__Int32 heartbeat_msg;
+std_msgs__msg__Int32MultiArray joint_state_msg;
+std_msgs__msg__Int32MultiArray joint_command_msg;
+
 rclc_executor_t executor;
 rclc_support_t support;
 rcl_allocator_t allocator;
 rcl_node_t node;
-rcl_timer_t timer;
+rcl_timer_t heartbeat_timer;
+rcl_timer_t joint_state_timer;
+
+// 当前关节位置
+int32_t current_positions[SERVO_COUNT] = {0};
+int32_t received_positions[SERVO_COUNT] = {0};  // 用于接收命令
 
 // FreeRTOS 任务句柄
 TaskHandle_t microros_task_handle;
-TaskHandle_t servo_task_handle;
 
-#define RCCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){error_loop();}}
-#define RCSOFTCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){}}
+void moveAllServos(int position, int speed, int acceleration) {
+    for(int i = 0; i < SERVO_COUNT; i++) {
+        st.WritePosEx(servoIDs[i], position, speed, acceleration);
+        delay(20);  // 短暂延时避免通信冲突
+    }
+}
 
-// Error handle loop
 void error_loop() {
-  while(1) {
-    delay(100);
-  }
+    while(1) {
+        digitalWrite(LED_PIN, !digitalRead(LED_PIN));
+        delay(100);
+    }
 }
 
-// Timer callback function
-void timer_callback(rcl_timer_t * timer, int64_t last_call_time) {
-  RCLC_UNUSED(last_call_time);
-  if (timer != NULL) {
-    RCSOFTCHECK(rcl_publish(&publisher, &msg, NULL));
-    msg.data++;
-    Serial.println("Published: " + String(msg.data));
-  }
+void heartbeat_timer_callback(rcl_timer_t * timer, int64_t last_call_time) {
+    RCLC_UNUSED(last_call_time);
+    if (timer != NULL) {
+        rcl_publish(&heartbeat_publisher, &heartbeat_msg, NULL);
+        heartbeat_msg.data++;
+        digitalWrite(LED_PIN, !digitalRead(LED_PIN));  // 心跳LED指示
+    }
 }
 
-// 舵机控制任务
-void servo_control_task(void *parameter) {
+void joint_state_timer_callback(rcl_timer_t * timer, int64_t last_call_time) {
+    RCLC_UNUSED(last_call_time);
+    if (timer != NULL) {
+        // 读取当前舵机位置
+        for(int i = 0; i < SERVO_COUNT; i++) {
+            current_positions[i] = st.ReadPos(servoIDs[i]);
+        }
+        joint_state_msg.data.data = current_positions;
+        rcl_publish(&joint_state_publisher, &joint_state_msg, NULL);
+    }
+}
 
-   Serial.begin(115200); 
-  // 初始化舵机串口，使用GPIO43(TX)和GPIO44(RX)
-  ServoSerial.begin(115200, SERIAL_8N1, 44, 43); // RX=44(D7), TX=43(D6)
-
-    // ServoSerial.begin(115200, SERIAL_8N1, 43, 44); // RX=44(D7), TX=43(D6)
-  st.pSerial = &ServoSerial;
-
-  // 定期发送测试数据到舵机
-  while(1) {
-    st.WritePosEx(0, 4095, 3400, 50);  // 移动到位置4095
-    vTaskDelay(pdMS_TO_TICKS(1000));
+void joint_command_callback(const void * msgin) {
+    const std_msgs__msg__Int32MultiArray * msg = (const std_msgs__msg__Int32MultiArray *)msgin;
     
-    st.WritePosEx(0, 2000, 1500, 50);  // 移动到位置2000
-    vTaskDelay(pdMS_TO_TICKS(1000));
+    if (msg->data.size >= SERVO_COUNT) {
+        for(size_t i = 0; i < SERVO_COUNT; i++) {
+            received_positions[i] = msg->data.data[i];
+            st.WritePosEx(servoIDs[i], received_positions[i], 1500, 50);
+            vTaskDelay(pdMS_TO_TICKS(20));
+        }
 
-    Serial.println("AA\n");
-  }
+    }
 }
 
-// micro-ROS 任务函数
 void microros_task(void *parameter) {
-  // USB CDC已经是默认的Serial，用于micro-ROS通信
-  Serial.begin(115200);
-  while (!Serial) {
-    vTaskDelay(pdMS_TO_TICKS(100));
-  }
-  
-  set_microros_serial_transports(Serial);
-  delay(2000);
-
-  allocator = rcl_get_default_allocator();
-
-  //create init_options
-  RCCHECK(rclc_support_init(&support, 0, NULL, &allocator));
-
-  // create node
-  RCCHECK(rclc_node_init_default(&node, "xiao_esp32s3_node", "", &support));
-
-  // create publisher
-  RCCHECK(rclc_publisher_init_default(
-    &publisher,
-    &node,
-    ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int32),
-    "xiao_counter"));
-
-  // create timer
-  const unsigned int timer_timeout = 1000;
-  RCCHECK(rclc_timer_init_default(
-    &timer,
-    &support,
-    RCL_MS_TO_NS(timer_timeout),
-    timer_callback));
-
-  // create executor
-  RCCHECK(rclc_executor_init(&executor, &support.context, 1, &allocator));
-  RCCHECK(rclc_executor_add_timer(&executor, &timer));
-
-  msg.data = 0;
-
-  // micro-ROS 主循环
-  while(1) {
-    RCSOFTCHECK(rclc_executor_spin_some(&executor, RCL_MS_TO_NS(100)));
-    vTaskDelay(pdMS_TO_TICKS(50));
-  }
+    pinMode(LED_PIN, OUTPUT);
+    digitalWrite(LED_PIN, LOW);
+    
+    set_microros_serial_transports(Serial);
+    delay(2000);
+    
+    allocator = rcl_get_default_allocator();
+    
+    //create init_options
+    rclc_support_init(&support, 0, NULL, &allocator);
+    
+    // create node
+    rclc_node_init_default(&node, "xiao_esp32s3_node", "", &support);
+    
+    // create publishers
+    rclc_publisher_init_default(
+        &heartbeat_publisher,
+        &node,
+        ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int32),
+        "xiao/heartbeat");
+        
+    rclc_publisher_init_default(
+        &joint_state_publisher,
+        &node,
+        ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int32MultiArray),
+        "xiao/joint_states");
+        
+    // create subscriber
+    rclc_subscription_init_default(
+        &joint_command_subscriber,
+        &node,
+        ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int32MultiArray),
+        "xiao/joint_commands");
+    
+    // create timers
+    rclc_timer_init_default(
+        &heartbeat_timer,
+        &support,
+        RCL_MS_TO_NS(1000),
+        heartbeat_timer_callback);
+        
+    rclc_timer_init_default(
+        &joint_state_timer,
+        &support,
+        RCL_MS_TO_NS(100),
+        joint_state_timer_callback);
+    
+    // create executor
+    rclc_executor_init(&executor, &support.context, 3, &allocator);
+    rclc_executor_add_timer(&executor, &heartbeat_timer);
+    rclc_executor_add_timer(&executor, &joint_state_timer);
+    rclc_executor_add_subscription(
+        &executor,
+        &joint_command_subscriber,
+        &joint_command_msg,
+        &joint_command_callback,
+        ON_NEW_DATA);
+    
+    // Initialize messages
+    heartbeat_msg.data = 0;
+    
+    // Initialize joint state message
+    joint_state_msg.data.capacity = SERVO_COUNT;
+    joint_state_msg.data.size = SERVO_COUNT;
+    joint_state_msg.data.data = current_positions;
+    
+    // Initialize joint command message
+    joint_command_msg.data.capacity = SERVO_COUNT;
+    joint_command_msg.data.size = SERVO_COUNT;
+    joint_command_msg.data.data = received_positions;
+    
+    // Test initial movement
+    moveAllServos(2048, 1500, 50);  // 移动到中间位置
+    
+    while(1) {
+        rclc_executor_spin_some(&executor, RCL_MS_TO_NS(100));
+        vTaskDelay(pdMS_TO_TICKS(10));
+    }
 }
 
 void setup() {
-// 创建 micro-ROS 任务
-//   xTaskCreate(
-//     microros_task,          /* 任务函数 */
-//     "micro-ROS Task",       /* 任务名称 */
-//     8192,                   /* 堆栈大小 */
-//     NULL,                   /* 任务参数 */
-//     1,                      /* 任务优先级 */
-//     &microros_task_handle   /* 任务句柄 */
-//   );
-
-  // 创建舵机控制任务
-  xTaskCreate(
-    servo_control_task,     /* 任务函数 */
-    "Servo Control",        /* 任务名称 */
-    4096,                   /* 堆栈大小 */
-    NULL,                   /* 任务参数 */
-    1,                      /* 任务优先级 */
-    &servo_task_handle      /* 任务句柄 */
-  );
+    Serial.begin(115200);
+    Serial1.begin(1000000, SERIAL_8N1, S_RXD, S_TXD);
+    st.pSerial = &Serial1;
+    
+    xTaskCreate(
+        microros_task,
+        "micro-ROS Task",
+        8192,
+        NULL,
+        1,
+        &microros_task_handle
+    );
 }
 
 void loop() {
-  // FreeRTOS 调度器会处理任务调度
-  vTaskDelay(pdMS_TO_TICKS(100));
+    vTaskDelay(pdMS_TO_TICKS(100));
 }
