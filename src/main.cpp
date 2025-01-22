@@ -8,6 +8,8 @@
 #include <HardwareSerial.h>
 #include <SCServo.h>
 
+#include "ble_driver.h"
+
 SMS_STS st;
 #define S_RXD 44
 #define S_TXD 43
